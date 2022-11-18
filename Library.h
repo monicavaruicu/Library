@@ -1,27 +1,17 @@
 #pragma once
-#include <iostream>
-#include <fstream>
+#include "Book.h"
 
 class Library
 {
 public:
-	Library();
-	int addBook(std::ifstream &fin);
-	void printBook();
-	const std::string getTitle();
-	const std::string getPublisher();
-	const std::string getISBN();
-	int search_by_title(Library myObj[], int myObjSize);
-	int search_by_publisher(Library myObj[], int myObjSize);
-	int search_by_ISBN(Library myObj[], int myObjSize);
-	~Library();
-
+	bool search_by_title(int myObjSize);
+	bool search_by_publisher(int myObjSize);
+	bool search_by_ISBN(int myObjSize);
+	bool addBookToLibrary(int& myObjSize, std::ifstream& fin);
+	void printBooksFromLibrary(int myObjSize);
+	bool verifyISBN(int myObjSize);
 
 private:
-	std::string title;
-	std::string author;
-	std::string publisher;
-	std::string ISBN;
-	int publishing_year;
-	float price;
+	Book books[11];
+
 };

@@ -1,157 +1,107 @@
+#include <iostream>
 #include "Library.h"
-#include <string>
-#include <chrono>
+#include "ISBN.h"
 
-Library::Library()
+bool Library::addBookToLibrary(int& myObjSize, std::ifstream& fin)
 {
-	title = "";
-	author = "";
-	publisher = "";
-	ISBN = "";
-	publishing_year = 0;
-	price = 0.0;
+	return books[myObjSize++].addBook(fin);
 }
 
-Library::~Library()
+void Library::printBooksFromLibrary(int myObjSize)
 {
+	for (int i = 0; i < myObjSize; i++)
+		books[i].printBook();
 }
 
-int Library::addBook(std::ifstream &fin)
+bool Library::verifyISBN(int myObjSize)
 {
+	std::string countryISBNCurrent, publisherISBNCurrent, titleISBNCurrent, digitISBNCurrent;
+	std::string countryISBN, publisherISBN, titleISBN, digitISBN;
 
-	time_t now = time(0);
-	int year = 1970 + now/31556926;
-
-
-	if (fin.peek() == EOF)
+	for (int i = 0; i < myObjSize - 1; i++)
 	{
-		std::cout << "You reached the end of the file!\n\n";
-		return 0;
+		books[i].getISBN(countryISBN, publisherISBN, titleISBN, digitISBN);
+		books[myObjSize - 1].getISBN(countryISBNCurrent, publisherISBNCurrent, titleISBNCurrent, digitISBNCurrent);
+		if (countryISBN == countryISBNCurrent && publisherISBN == publisherISBNCurrent && titleISBN == titleISBNCurrent && digitISBN == digitISBNCurrent)
+			return false;
 	}
 
-	getline(fin, this->title);
-	getline(fin, this->author);
-	getline(fin, this->publisher);
-	getline(fin, this->ISBN);
-
-	int x;
-	fin >> x;
-	
-	if (x > year || x < 0)
-	{
-		std::cout << "Couldn't assign the value";
-		exit(1);
-	}
-	else
-		this->publishing_year = x;
-
-	float y;
-	fin >> y;
-	
-	if (y < 0)
-	{
-		std::cout << "Couldn't assign the value";
-		exit(1);
-	}
-	else
-		this->price = y;
-
-	std::cout << "Book successfully added from file!\n\n";
-
-	fin.get();
-	fin.get();
-
-	return 1;
+	return true;
 }
 
-void Library::printBook()
-{
-	std::cout << this->title << "\n";
-	std::cout << this->author << "\n";
-	std::cout << this->publisher << "\n";
-	std::cout << this->ISBN << "\n";
-	std::cout << this->publishing_year << "\n";
-	std::cout << this->price << "\n";
 
-	std::cout << "\n";
-}
-
-int  Library::search_by_title(Library myObj[], int myObjSize)
+bool  Library::search_by_title(int myObjSize)
 {
 	int i;
-	std::string str;
+	std::string myString;
 
 	std::cin.get();
-	std::cout << "Title to search: ";  getline(std::cin, str);
+	std::cout << "Title to search: ";  getline(std::cin, myString);
+
 	for (i = 0; i < myObjSize; i++)
-		if (myObj[i].getTitle() == str)
+		if (books[i].getTitle() == myString)
 		{
 			std::cout << "Book found!\n\n";
-			return 1;
+			books[i].printBook();
+			return true;
 		}
 
 	std::cout << "Book not found!\n\n";
-	return 0;
+	return false;
 }
 
-int  Library::search_by_publisher(Library myObj[], int myObjSize)
+bool Library::search_by_publisher(int myObjSize)
 {
 	int i;
 	std::string str;
 
-	int ok = 0;
+	bool ok = false;
 
 	std::cin.get();
 	std::cout << "Publisher to search: ";  getline(std::cin, str);
 
 	std::cout << "Books by " << str << " publisher: \n\n";
 	for (i = 0; i < myObjSize; i++)
-		if (myObj[i].getPublisher() == str)
+		if (books[i].getPublisher() == str)
 		{
-			std::cout << myObj[i].getTitle() << "\n";
-			ok = 1;
+			books[i].printBook();
+			std::cout << "\n";
+			ok = true;
 		}
 
-	if (ok == 0)
+	if (ok == false)
 		std::cout << "No book with this publisher was found!\n\n";
-
-	std::cout << "\n";
 
 	return ok;
 }
 
-int  Library::search_by_ISBN(Library myObj[], int myObjSize)
+bool  Library::search_by_ISBN(int myObjSize)
 {
 	int i;
-	std::string str;
+	std::string strISBN;
 
 	std::cin.get();
-	std::cout << "ISBN to search: ";  getline(std::cin, str);
+	std::cout << "ISBN to search: ";  getline(std::cin, strISBN);
+
+	std::string countryISBNIn, publisherISBNIn, titleISBNIn, digitISBNIn;
+	std::string countryISBN, publisherISBN, titleISBN, digitISBN;
+
+	books[myObjSize].computeISBN(strISBN, countryISBNIn, publisherISBNIn, titleISBNIn, digitISBNIn);
 
 	for (i = 0; i < myObjSize; i++)
-		if (myObj[i].getISBN() == str)
+	{
+		books[i].getISBN(countryISBN, publisherISBN, titleISBN, digitISBN);
+		if (countryISBN == countryISBNIn && publisherISBN == publisherISBNIn && titleISBN == titleISBNIn && digitISBN == digitISBNIn)
 		{
-			std::cout << myObj[i].getTitle() << "\n\n";
-			return 1;
+			std::cout << "ISBN found!\n\n";
+			books[i].printBook();
+			return true;
 		}
+	}
 
 	std::cout << "ISBN not found!\n\n";
-
-	return 0;
+	return false;
 }
 
-const std::string Library::getTitle()
-{
-	return this->title;
-}
 
-const std::string Library::getPublisher()
-{
-	return this->publisher;
-}
-
-const std::string Library::getISBN()
-{
-	return this->ISBN;
-}
 
