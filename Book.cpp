@@ -65,7 +65,7 @@ bool Book::addBook(std::ifstream& fin)
 	else
 		this->price = y;
 
-	std::cout << "Book successfully added from file!\n\n";
+	std::cout << "Book successfully added from file!\n";
 
 	fin.get();
 	fin.get();
